@@ -1,0 +1,10 @@
+
+# save this as ldap_config.py and set the appropriate data
+
+LDAP_URL = "ldap://127.0.0.1"
+LDAP_BASE_DN = 'dc=example,dc=org'
+LDAP_USER_SCOPE = 'ou=People,'+LDAP_BASE_DN
+LDAP_GROUP_SCOPE = 'ou=Group,'+LDAP_BASE_DN
+LDAP_FORWARD_SCOPE = 'ou=MailForwards,'+LDAP_BASE_DN
+SYS_BIND_DN = 'cn=xxxxx,ou=Services,'+LDAP_BASE_DN
+SYS_BIND_PASSWORD = 'xxxxx'

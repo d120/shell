@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# rootlog wrapper script
+#
+# Author: Johannes Lauinger <jlauinger@d120.de>
+
+source rootlog_config.sh
+
+json_escape () {
+  printf '%s' "$1" | python -c 'import json,sys; print(json.dumps(sys.stdin.read()))'
+}
+
+USER="$(whoami)@$(hostname)"
+
+# is a content specified from command line?
+if [[ -z $* ]]; then
+  TMPFILE=~/.ROOTLOG
+
+  # prepopulate rootlog
+  cat >$TMPFILE <<EOF
+
+
+# rootlog metadata:
+#   $(date): $USER
+#
+# Lines starting with a hastag will be ignored.
+# Trailing and leading empty lines will be removed.
+#
+# Save and exit an empty file to abort adding a rootlog.
+#
+# Exit vim by typing <ESC> :wq <ENTER>
+EOF
+
+  # let the user type the rootlog
+  vim $TMPFILE
+
+  # remove comment lines
+  sed -i '/^#/d' $TMPFILE
+  # remove leading and trailing empty lines
+  sed -i -e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba' $TMPFILE
+
+  # read resulting content
+  MESSAGE="$(<$TMPFILE)"
+
+  rm $TMPFILE
+else
+  MESSAGE="$*"
+fi
+
+# do not accept empty rootlogs
+if [[ -z "$MESSAGE" ]]; then
+  echo "Empty rootlog content. Aborting..."
+  exit 1
+fi
+
+# add the actual thing to the server
+curl http://$ROOTLOG_SERVER/hubot/rootlog \
+     -X POST -f \
+     -H "Content-Type: application/json" \
+     -d "{\"message\":$(json_escape "$MESSAGE"),\"username\":$(json_escape "$USER")}" \
+     >/dev/null 2>&1
+
+# provide a status message
+if [[ $? -eq 0 ]]; then
+  echo
+  echo "$(date): $USER"
+  echo
+  echo "All set. The rootlog was added. Go ahead and ask @alice:d120.de in chat about it."
+else
+  echo "There was an error adding the rootlog!"
+  exit 1
+fi

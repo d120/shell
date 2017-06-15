@@ -1,0 +1,5 @@
+HRZ_TARGET="https://hrz.example.com/whitelist-update.php"
+
+SECRET_D120="changeme1"
+SECRET_FACHSCHAFT="changeme1"
+SECRET_LISTS="changeme1"

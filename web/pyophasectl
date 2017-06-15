@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#
+# pyophasectl
+#
+# Update and manage pyophase deployment.
+#
+
+DEPLOYPATH="/srv/pyophase"
+DJANGOUSER="pyophase"
+
+function usage {
+    cat <<END
+Update and manage pyophase deployment.
+    update: deploy latest version
+    version: show currently installed version
+END
+}
+
+case "$1" in
+    "update")
+        cd $DEPLOYPATH && sudo -u $DJANGOUSER script/update --prod
+        ;;
+    "version")
+        cd $DEPLOYPATH && git --no-pager log -1 --format="(%cr) %h %s"
+        ;;
+    *)
+        usage
+        ;;
+esac

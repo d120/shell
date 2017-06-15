@@ -1,0 +1,89 @@
+#!/bin/bash
+
+#
+# padmanctl
+#
+# Manage Etherpad Lite Manager
+#
+
+DEPLOYPATH="/var/www/padman"
+DATABASE="etherpad"
+
+function usage {
+    cat <<END
+Manage Etherpad Lite Manager
+
+    groups show: show available PadMan groups
+    groups add <menu_title> <group_alias> <group_mapper> <position>: add new PadMan group
+    groups del <menu_title>: delete PadMan group
+
+    rehash: run php update_groups.php --update
+
+    version: show currently installed version
+
+Example:
+    padmanctl groups add "UAs/Test" test fss 4242
+END
+}
+
+function rehash {
+    cd $DEPLOYPATH && php update_groups.php --update
+}
+
+function show_groups {
+    sudo mysql $DATABASE -e "select id, menu_title, group_alias, group_mapper, position, tags from padman_group;"
+}
+
+function add_group {
+    MENU_TITLE="$1"
+    GROUP_ALIAS="$2"
+    GROUP_MAPPER="$3"
+    POSITION="$4"
+    if [ -z "$4" ]; then
+        echo -e "You need to specify MENU_TITLE, GROUP_ALIAS, GROUP_MAPPER, POSITION.\n"
+        usage
+        return 1
+    fi
+    sudo mysql $DATABASE -e "insert into padman_group (menu_title, group_alias, group_mapper, position) values ('$MENU_TITLE', '$GROUP_ALIAS', '$GROUP_MAPPER', '$POSITION');"
+    rehash
+}
+
+function del_group {
+    MENU_TITLE="$1"
+    if [ -z "$MENU_TITLE" ]; then
+        echo -e "You need to specify MENU_TITLE.\n"
+        usage
+        return 1
+    fi
+    sudo mysql $DATABASE -e "delete from padman_group where menu_title = '$MENU_TITLE';"
+    rehash
+}
+
+case "$1" in
+    "groups")
+        case "$2" in
+            "show")
+                show_groups
+                ;;
+            "add")
+                add_group $3 $4 $5 $6
+                ;;
+            "del")
+                del_group $3
+                ;;
+            *)
+                usage
+                ;;
+        esac
+        ;;
+    "rehash")
+        rehash
+        ;;
+    "version")
+        cd $DEPLOYPATH && git --no-pager log -1 --format="(%cr) %h %s"
+        ;;
+    *)
+        usage
+        ;;
+esac
+
