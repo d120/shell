@@ -1,18 +1,20 @@
 #!/bin/bash
 
 SCRIPTHOME=`pwd`
+LN="ln -sfn"
 
 # create symlinks to the executable scripts
-ln -s "$SCRIPTHOME/web/padmanctl" /usr/local/bin/padmanctl
-ln -s "$SCRIPTHOME/web/pyophasectl" /usr/local/bin/pyophasectl
-ln -s "$SCRIPTHOME/web/pyofahrtctl" /usr/local/bin/pyofahrtctl
 
-ln -s "$SCRIPTHOME/rootlog/rootlog" /usr/local/bin/rootlog
+$LN "$SCRIPTHOME/web/padmanctl" /usr/local/bin/padmanctl
+$LN "$SCRIPTHOME/web/pyophasectl" /usr/local/bin/pyophasectl
+$LN "$SCRIPTHOME/web/pyofahrtctl" /usr/local/bin/pyofahrtctl
 
-ln -s "$SCRIPTHOME/mail/hrz-whitelist.py" /usr/local/bin/update-mail-stuff
+$LN "$SCRIPTHOME/rootlog/rootlog" /usr/local/bin/rootlog
 
-ln -s "$SCRIPTHOME/ldap/adduser.py" /usr/local/bin/d120-adduser
-ln -s "$SCRIPTHOME/ldap/aliasmod.py" /usr/local/bin/d120-aliasmod
-ln -s "$SCRIPTHOME/ldap/chsh.sh" /usr/local/bin/d120-chsh
-ln -s "$SCRIPTHOME/ldap/deluser.py" /usr/local/bin/d120-deluser
-ln -s "$SCRIPTHOME/ldap/groupmod.py" /usr/local/bin/d120-groupmod
+$LN "$SCRIPTHOME/mail/hrz-whitelist.py" /usr/local/bin/update-mail-stuff
+
+$LN "$SCRIPTHOME/ldap/adduser.py" /usr/local/bin/d120-adduser
+$LN "$SCRIPTHOME/ldap/aliasmod.py" /usr/local/bin/d120-aliasmod
+$LN "$SCRIPTHOME/ldap/chsh.sh" /usr/local/bin/d120-chsh
+$LN "$SCRIPTHOME/ldap/deluser.py" /usr/local/bin/d120-deluser
+$LN "$SCRIPTHOME/ldap/groupmod.py" /usr/local/bin/d120-groupmod
