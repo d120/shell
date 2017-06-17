@@ -8,6 +8,7 @@ LN="ln -sfn"
 $LN "$SCRIPTHOME/web/padmanctl" /usr/local/bin/padmanctl
 $LN "$SCRIPTHOME/web/pyophasectl" /usr/local/bin/pyophasectl
 $LN "$SCRIPTHOME/web/pyofahrtctl" /usr/local/bin/pyofahrtctl
+$LN "$SCRIPTHOME/web/websitectl" /usr/local/bin/websitectl
 
 $LN "$SCRIPTHOME/rootlog/rootlog" /usr/local/bin/rootlog
 
