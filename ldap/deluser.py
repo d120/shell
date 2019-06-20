@@ -100,6 +100,7 @@ def main(args):
     print()
     if not query_yes_no("Is this DN correct for the user to be deleted? {}".format(user_dn)):
         sys.exit()
+    print()
 
     # Get groups user is member of
     c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(member='+user_dn+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['cn'])
@@ -170,7 +171,8 @@ def main(args):
     print()
 
     # Let admin verify
-    if not query_yes_no("Proceed to delete?", default="no"):
+    if input("Proceed to delete? Confirm by typing the username to be deleted: ") != uid:
+        print("Aborting.")
         sys.exit()
     print()
 
