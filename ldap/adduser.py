@@ -88,7 +88,7 @@ def main(args):
         mail = mail_input
 
     print("")
-    print("Following fileds will be set:")
+    print("Following fields will be set:")
     print("uid:\t\t" + uid)
     print("givenName:\t" + given_name)
     print("sn:\t\t" + surname)
@@ -138,6 +138,10 @@ def main(args):
 
     c.add("uid=" + uid + "," + LDAP_USER_SCOPE, objectClasses, attrs)
     print(c.result);
+    if c.result['result'] != 0:
+        print("User creation FAILED, error code %d" % (c.result.result,))
+        sys.exit(1)
+
 
     for grp in args.group:
         c.modify('cn=' + grp + ',' + LDAP_GROUP_SCOPE, {'member': (MODIFY_ADD, ['uid=' + uid + ',' + LDAP_USER_SCOPE])})
@@ -153,6 +157,9 @@ def main(args):
 
     passfield = "{crypt}" + crypt.crypt(userpw)
     c.modify("uid=" + uid + "," + LDAP_USER_SCOPE, {'userPassword': (MODIFY_ADD, [passfield])})
+    if c.result['result'] != 0:
+        print("Passwort change FAILED, error code %d" % (c.result.result,))
+        sys.exit(1)
     #ld_con.unbind_s()
 
 

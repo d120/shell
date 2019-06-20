@@ -8,3 +8,5 @@ LDAP_GROUP_SCOPE = 'ou=Group,'+LDAP_BASE_DN
 LDAP_FORWARD_SCOPE = 'ou=MailForwards,'+LDAP_BASE_DN
 SYS_BIND_DN = 'cn=xxxxx,ou=Services,'+LDAP_BASE_DN
 SYS_BIND_PASSWORD = 'xxxxx'
+
+

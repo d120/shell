@@ -17,12 +17,13 @@ def findAliases(userAliases):
   for alias in userAliases:
     aliasSearch+= '(mailTarget=' + alias + ')'
   aliasSearch+=')'
-  c.search(search_base=LDAP_FORWARD_SCOPE, search_filter=aliasSearch, search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['mailAlias'])
+  c.search(search_base=LDAP_FORWARD_SCOPE, search_filter=aliasSearch, search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['mailAlias', 'mailTarget'])
   aliases = []
   for alias_obj in c.response:
     alias_alias = alias_obj['attributes']['mailAlias']
+    print(alias_obj)
     if len(alias_alias) != 0:
-      aliases.append(alias_alias[0])
+      aliases.append((alias_alias[0], len(alias_obj['attributes']['mailTarget'])))
   return aliases
 
 def findLists(addresses):
@@ -48,7 +49,6 @@ def main(args):
     if len(c.response) == 0:
         print("Error: User {} not found!".format(uid))
         sys.exit()
-    print (c.response)
     user_dn = c.response[0]['dn']
     attributes = c.response[0]['attributes']
     # Let admin verify DN
@@ -75,12 +75,12 @@ def main(args):
     print("uid:\t\t {}".format(attributes['uidNumber'][0]))
     print("home:\t\t {}".format(attributes['homeDirectory'][0]))
     print("dn:\t\t {}".format(user_dn))
-    for group in groups:
-        print("group:\t\t",group)
     for mail in addresses:
         print("mailAddress:\t",mail)
-    for alias in aliases:
-        print("alias:\t\t", alias)
+    for group in groups:
+        print("group:\t\t",group)
+    for (alias, num) in aliases:
+        print("alias:\t\t", alias, "(", num, ")")
     findLists(addresses)
     #subprocess.call(["sudo", "find", "/mnt/media/", "-user",  uid])
     # Let admin verify

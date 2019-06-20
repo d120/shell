@@ -21,7 +21,12 @@ def get_uid_by_dn(fqdn):
         return match.group(1)
     else:
         print("Error: uid not found in {}.".format(fqdn))
-        sys.exit()
+        pattern = r"cn=([0-9a-zA-Z_-]+),"
+        match = re.search(pattern, fqdn)
+        if match:
+            return match.group(1)
+        else:
+            sys.exit()
 
 def get_new_gidNumber(c):
     c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(objectClass=posixGroup)', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['gidNumber'])

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # Copyright (c) 2016 Max Weller <mweller@d120.de>
 
-MAILMAN_FORWARD_IGNORE_LISTS = []
+from ldap_connection import connect_ldap, LDAP_BASE_DN, SYS_BIND_DN, SYS_BIND_PASSWORD
+from ldap_config import MAILMAN_FORWARD_IGNORE_LISTS
 
-from ../ldap/ldap_connection import connect_ldap, LDAP_BASE_DN, SYS_BIND_DN, SYS_BIND_PASSWORD
-from whitelist_config import *
+from whitelist_config import HRZ_TARGET, SECRET_D120, SECRET_FACHSCHAFT, SECRET_LISTS
 
 from ldap3 import SEARCH_SCOPE_WHOLE_SUBTREE, MODIFY_ADD
 from subprocess import check_call, check_output
@@ -82,3 +82,5 @@ with open(map_file, 'w') as f:
 
 check_call(['/usr/sbin/postmap', map_file])
 print('OK')
+
+

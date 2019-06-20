@@ -1,3 +1,5 @@
 ldap_config.py
 rootlog_config.sh
 whitelist_config.py
+*.pyc
+__pycache__/
