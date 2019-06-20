@@ -101,7 +101,7 @@ def main(args):
     if mobile:
         print("mobile:\t\t" + mobile)
     if phone:
-        print("telephoneNumber:\t" + phone)
+        print("homePhone:\t" + phone)
     print("mail:\t" + mail)
     if not args.nomail:
         for maddr in mailaliases:
@@ -134,7 +134,7 @@ def main(args):
     if mobile:
         attrs['mobile']    = mobile
     if phone:
-        attrs['telephoneNumber'] = phone
+        attrs['homePhone'] = phone
 
     c.add("uid=" + uid + "," + LDAP_USER_SCOPE, objectClasses, attrs)
     print(c.result);
