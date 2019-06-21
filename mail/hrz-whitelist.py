@@ -22,8 +22,10 @@ def get_whitelist_contents():
         for alias in attrs['mailAlias']:
             whitelist_file.append(alias)
 
-    whitelist_str = '\n'.join(whitelist_file)
-    return whitelist_str
+    if len(whitelist_file) < 1:
+        print("WARNING: ldap whitelist is empty, no external mails to ldap users will be received!", file=sys.stderr)
+
+    return whitelist_file
 
 
 MAILMAN_SUFFIXES = ["", "-bounces", "-admin", "-request", "-confirm", "-join", "-leave", "-owner", "-subscribe", "-unsubscribe"]
@@ -33,31 +35,36 @@ def get_all_mailman_lists():
     return str(result,"ascii").split('\n')
 
 def get_mailman_whitelist_contents(suffixes):
-    return '\n'.join(name+suffix
+    return [name+suffix
                      for name in get_all_mailman_lists()
-                     for suffix in suffixes if name != "")
+                     for suffix in suffixes if name != ""]
 
 def get_mailman_forward_contents(source_suffixes, target_suffix):
-    return '\n'.join(name+src+' '+name+target_suffix
+    return [name+src+' '+name+target_suffix
                      for name in get_all_mailman_lists()
-                     for src in source_suffixes if name != "" and not name in MAILMAN_FORWARD_IGNORE_LISTS)
+                     for src in source_suffixes if name != "" and not name in MAILMAN_FORWARD_IGNORE_LISTS]
 
 def upload_whitelist(api_url, emaildomain, password, emailliste):
-    print('Updating whitelist for '+emaildomain+' ... ', end='')
+    print('Updating whitelist with %d entries for %s ...' % (len(emailliste), emaildomain), end='')
     rq  = requests.post(api_url, files={
-        'emailliste': ('whitelist.txt', emailliste)
+        'emailliste': ('whitelist.txt', "\n".join(emailliste))
     }, data={
         'emaildomain': emaildomain,
         'password': password,
     })
-    print(rq.text)
+    if rq.text.strip() != "OK":
+        print("WARNING: failed to update whitelist for "+emaildomain+", error response from hrz:", file=sys.stderr)
+        print(rq.text, file=sys.stderr)
+    else:
+        print("OK")
 
 
 # --- update whitelists with the HRZ ---------------------------------
-
-whitelist = get_whitelist_contents()
-whitelist += "\n"
+whitelist = []
+whitelist += get_whitelist_contents()
 whitelist += get_mailman_whitelist_contents([""])
+
+print("Whitelist contains %d entries" % (len(whitelist),))
 
 upload_whitelist(HRZ_TARGET, "d120.de", SECRET_D120, whitelist)
 upload_whitelist(HRZ_TARGET, "fachschaft.informatik.tu-darmstadt.de", SECRET_FACHSCHAFT, whitelist)
@@ -78,7 +85,7 @@ whitelist = get_mailman_forward_contents(
         )
 
 with open(map_file, 'w') as f:
-    f.write(whitelist)
+    f.write("\n".join(whitelist))
 
 check_call(['/usr/sbin/postmap', map_file])
 print('OK')
