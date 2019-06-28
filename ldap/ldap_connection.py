@@ -1,6 +1,6 @@
 import sys
 import getpass
-from ldap3 import Server, Connection, ALL_ATTRIBUTES, SEARCH_SCOPE_WHOLE_SUBTREE
+from ldap3 import Server, Connection, ALL_ATTRIBUTES, SUBTREE
 import os
 from ldap_config import *
 

@@ -6,14 +6,14 @@ from ldap_config import MAILMAN_FORWARD_IGNORE_LISTS
 
 from whitelist_config import HRZ_TARGET, SECRET_D120, SECRET_FACHSCHAFT, SECRET_LISTS
 
-from ldap3 import SEARCH_SCOPE_WHOLE_SUBTREE, MODIFY_ADD
+from ldap3 import SUBTREE, MODIFY_ADD
 from subprocess import check_call, check_output
 import requests
 
 def get_whitelist_contents():
     c = connect_ldap(SYS_BIND_DN, SYS_BIND_PASSWORD)
 
-    c.search(search_base=LDAP_BASE_DN, search_filter='(mailAlias=*)', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['mailAlias'])
+    c.search(search_base=LDAP_BASE_DN, search_filter='(mailAlias=*)', search_scope=SUBTREE, attributes=['mailAlias'])
 
     whitelist_file = []
 
