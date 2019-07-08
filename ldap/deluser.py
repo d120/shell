@@ -7,7 +7,7 @@ import argparse
 import subprocess
 import datetime
 from ldap_connection import init_ldap, LDAP_USER_SCOPE, LDAP_GROUP_SCOPE, LDAP_FORWARD_SCOPE
-from ldap3 import SEARCH_SCOPE_WHOLE_SUBTREE, MODIFY_ADD, MODIFY_DELETE
+from ldap3 import SUBTREE, MODIFY_ADD, MODIFY_DELETE
 
 DEFAULT_SHELL = '/bin/bash'
 IGNORE_UIDNUMBERS_ABOVE = 4999
@@ -60,7 +60,7 @@ def findAliases(userAliases):
     aliases = []
     for userAlias in userAliases:
         aliasSearch = '(mailTarget=' + userAlias + ')'
-        c.search(search_base=LDAP_FORWARD_SCOPE, search_filter=aliasSearch, search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['mailAlias', 'mailTarget'])
+        c.search(search_base=LDAP_FORWARD_SCOPE, search_filter=aliasSearch, search_scope=SUBTREE, attributes=['mailAlias', 'mailTarget'])
         for alias_obj in c.response:
             alias_alias = alias_obj['attributes']['mailAlias']
             if len(alias_alias) != 0:
@@ -104,7 +104,7 @@ def main(args):
     global c
     c = init_ldap()
     # Get User DN
-    c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid='+uid+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['mailAlias', 'uidNumber', 'displayName', 'homeDirectory', 'objectClass'])
+    c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid='+uid+')', search_scope=SUBTREE, attributes=['mailAlias', 'uidNumber', 'displayName', 'homeDirectory', 'objectClass'])
     if len(c.response) == 0:
         print2("Error: User {} not found!".format(uid))
         sys.exit()
@@ -118,7 +118,7 @@ def main(args):
     print2()
 
     # Get groups user is member of
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(member='+user_dn+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['cn'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(member='+user_dn+')', search_scope=SUBTREE, attributes=['cn'])
     groups = []
     for grp_obj in c.response:
         group_cn = grp_obj['attributes']['cn']

@@ -7,7 +7,7 @@ import re
 from ldap_connection import init_ldap, LDAP_USER_SCOPE, LDAP_GROUP_SCOPE
 
 import tabulate
-from ldap3 import Server, Connection, ALL_ATTRIBUTES, SEARCH_SCOPE_WHOLE_SUBTREE, MODIFY_ADD, MODIFY_DELETE
+from ldap3 import Server, Connection, ALL_ATTRIBUTES, SUBTREE, MODIFY_ADD, MODIFY_DELETE
 
 
 PROTECTED_GROUPS = ['fachschaft', 'fss']
@@ -29,7 +29,7 @@ def get_uid_by_dn(fqdn):
             sys.exit()
 
 def get_new_gidNumber(c):
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(objectClass=posixGroup)', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['gidNumber'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(objectClass=posixGroup)', search_scope=SUBTREE, attributes=['gidNumber'])
     gids = []
     gids.append(1000)
     for x in c.response:
@@ -51,7 +51,7 @@ def block_protected_groups(group):
 
 
 def group_list(args, c):
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SUBTREE, attributes=['member'])
     if len(c.response) == 0:
         print("Error: Group {} not found!".format(args.group))
         sys.exit()
@@ -67,7 +67,7 @@ def group_list(args, c):
 
 def group_create(args, c):
     block_protected_groups(args.group)
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SUBTREE, attributes=['member'])
     if len(c.response) != 0:
         print("Error: Group {} already exists!".format(args.group))
         sys.exit()
@@ -83,7 +83,7 @@ def group_create(args, c):
 
 def group_delete(args, c):
     block_protected_groups(args.group)
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SUBTREE, attributes=['member'])
     if len(c.response) == 0:
         print("Error: Group {} not found!".format(args.group))
         sys.exit()
@@ -93,17 +93,17 @@ def group_delete(args, c):
 
 def group_adduser(args, c):
     block_protected_groups(args.group)
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SUBTREE, attributes=['member'])
     if len(c.response) == 0:
         print("Error: Group {} not found!".format(args.group))
         sys.exit()
     add_list = []
     for user in args.users:
-        c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid='+user+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['uid'])
+        c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid='+user+')', search_scope=SUBTREE, attributes=['uid'])
         if len(c.response) == 0:
             print("Ignoring: "+user)
             continue
-        c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(&(cn='+args.group+') (member=uid='+user+','+LDAP_USER_SCOPE+'))', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+        c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(&(cn='+args.group+') (member=uid='+user+','+LDAP_USER_SCOPE+'))', search_scope=SUBTREE, attributes=['member'])
         if len(c.response) == 0:
             add_list.append('uid='+user+','+LDAP_USER_SCOPE)
             print("Adding: "+user)
@@ -115,13 +115,13 @@ def group_adduser(args, c):
 
 
 def group_removeuser(args, c):
-    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+    c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(cn='+args.group+')', search_scope=SUBTREE, attributes=['member'])
     if len(c.response) == 0:
         print("Error: Group {} not found!".format(args.group))
         sys.exit()
     rem_list = []
     for user in args.users:
-        c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(&(cn='+args.group+') (member=uid='+user+','+LDAP_USER_SCOPE+'))', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['member'])
+        c.search(search_base=LDAP_GROUP_SCOPE, search_filter='(&(cn='+args.group+') (member=uid='+user+','+LDAP_USER_SCOPE+'))', search_scope=SUBTREE, attributes=['member'])
         if len(c.response) == 0:
             print("Skipping: "+user)
         else:
