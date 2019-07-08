@@ -5,7 +5,7 @@ import sys
 import crypt
 import argparse
 from ldap_connection import init_ldap, LDAP_USER_SCOPE, LDAP_GROUP_SCOPE
-from ldap3 import SEARCH_SCOPE_WHOLE_SUBTREE, MODIFY_ADD
+from ldap3 import SUBTREE, MODIFY_ADD
 
 DEFAULT_SHELL = '/bin/bash'
 IGNORE_UIDNUMBERS_ABOVE = 4999
@@ -51,7 +51,7 @@ def main(args):
     uuid     = 0
     gid      = 1099
 
-    c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid=*)', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['uidNumber'])
+    c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid=*)', search_scope=SUBTREE, attributes=['uidNumber'])
 
     uids = []
     uids.append(1000)
@@ -72,7 +72,7 @@ def main(args):
     print("")
 
     while True:
-        c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid=' + uid + ')', search_scope=SEARCH_SCOPE_WHOLE_SUBTREE, attributes=['uidnumber'])
+        c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid=' + uid + ')', search_scope=SUBTREE, attributes=['uidnumber'])
         if len(c.response) == 0:
             break
         print("UID " + uid + " is already in use")
