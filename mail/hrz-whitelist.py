@@ -9,6 +9,35 @@ from whitelist_config import HRZ_TARGET, SECRET_D120, SECRET_FACHSCHAFT, SECRET_
 from ldap3 import SUBTREE, MODIFY_ADD
 from subprocess import check_call, check_output
 import requests
+from requests import adapters
+import ssl
+from urllib3 import poolmanager
+
+
+class BrokenTLSAdapter(adapters.HTTPAdapter):
+    """
+    Debian 10 Buster sets the minimum required TLS version for OpenSSL
+    (which the requests/urllib3 libraries use) to TLS 1.2 (which is good!).
+    Unfortunately, the HRZ Whitelist server does not understand anything
+    above TLS 1.0, so we use this class to override OpenSSL settings
+    for just this request.
+
+    Remove this implementation as soon as the server speaks TLS 1.2
+    (which you notice by not getting exceptions without this custom
+    adapter class code).
+    """
+    def init_poolmanager(self, connections, maxsize, block=False):
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        self.poolmanager = poolmanager.PoolManager(
+                num_pools=connections,
+                maxsize=maxsize,
+                block=block,
+                ssl_version=ssl.PROTOCOL_TLSv1,
+                ssl_context=ctx)
+
+session = requests.session()
+session.mount('https://', BrokenTLSAdapter())
+
 
 def get_whitelist_contents():
     c = connect_ldap(SYS_BIND_DN, SYS_BIND_PASSWORD)
@@ -46,7 +75,7 @@ def get_mailman_forward_contents(source_suffixes, target_suffix):
 
 def upload_whitelist(api_url, emaildomain, password, emailliste):
     print('Updating whitelist with %d entries for %s ...' % (len(emailliste), emaildomain), end='')
-    rq  = requests.post(api_url, files={
+    rq  = session.post(api_url, files={
         'emailliste': ('whitelist.txt', "\n".join(emailliste))
     }, data={
         'emaildomain': emaildomain,
