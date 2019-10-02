@@ -51,7 +51,7 @@ def main(args):
     uuid     = 0
     gid      = 1099
 
-    c.search(search_base=LDAP_USER_SCOPE, search_filter='(uid=*)', search_scope=SUBTREE, attributes=['uidNumber'])
+    c.search(search_base=LDAP_USER_SCOPE, search_filter='(objectClass=posixAccount)', search_scope=SUBTREE, attributes=['uidNumber'])
 
     uids = []
     uids.append(1000)
