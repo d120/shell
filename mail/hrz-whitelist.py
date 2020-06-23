@@ -9,6 +9,7 @@ from whitelist_config import HRZ_TARGET, SECRET_D120, SECRET_FACHSCHAFT, SECRET_
 from ldap3 import SUBTREE, MODIFY_ADD
 from subprocess import check_call, check_output
 import requests
+import sys
 
 def get_whitelist_contents():
     c = connect_ldap(SYS_BIND_DN, SYS_BIND_PASSWORD)
@@ -51,6 +52,7 @@ def upload_whitelist(api_url, emaildomain, password, emailliste):
     }, data={
         'emaildomain': emaildomain,
         'password': password,
+        'meldungen': '',
     })
     if rq.text.strip() != "OK":
         print("WARNING: failed to update whitelist for "+emaildomain+", error response from hrz:", file=sys.stderr)
