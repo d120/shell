@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016 Max Weller <mweller@d120.de>
+# Copyright (c) 2016 Mira Weller <mweller@d120.de>
 
 from ldap_connection import connect_ldap, LDAP_BASE_DN, SYS_BIND_DN, SYS_BIND_PASSWORD
 from ldap_config import MAILMAN_FORWARD_IGNORE_LISTS
+from mailmanclient import Client
 
-from whitelist_config import HRZ_TARGET, SECRET_D120, SECRET_FACHSCHAFT, SECRET_LISTS
+from whitelist_config import HRZ_TARGET, SECRET_D120, SECRET_FACHSCHAFT, SECRET_LISTS, MAILMAN3_API_URL, MAILMAN3_API_USER, MAILMAN3_API_PASSWORD
 
 from ldap3 import SUBTREE, MODIFY_ADD
 from subprocess import check_call, check_output
@@ -29,11 +30,15 @@ def get_whitelist_contents():
     return whitelist_file
 
 
+#TODO: Remove the following suffixes after complete mailman3 migration: -admin
 MAILMAN_SUFFIXES = ["", "-bounces", "-admin", "-request", "-confirm", "-join", "-leave", "-owner", "-subscribe", "-unsubscribe"]
 
 def get_all_mailman_lists():
     result = check_output(['/usr/sbin/list_lists', '-b'])
-    return str(result,"ascii").split('\n')
+    mailman2_lists = str(result,"ascii").split('\n')
+    c = Client(MAILMAN3_API_URL, MAILMAN3_API_USER, MAILMAN3_API_PASSWORD)
+    mailman3_lists = [ls.list_name for ls in c.get_lists()]
+    return list(set(mailman2_lists) | set(mailman3_lists))
 
 def get_mailman_whitelist_contents(suffixes):
     return [name+suffix
