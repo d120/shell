@@ -66,8 +66,11 @@ def main(args):
     uids.sort(reverse=True)
 
     uuid = uids[0]+1
-    uid = (given_name[0] + surname).lower()
-    uid = replace_umlauts(uid)
+    if (args.uid):
+        uid = args.uid
+    else:
+        uid = (given_name[0] + surname).lower()
+        uid = replace_umlauts(uid)
 
     print("")
 
@@ -168,6 +171,7 @@ if __name__ == '__main__':
     parser.add_argument('--group', '-g', action='append', default=[])
     parser.add_argument('--nomail', action='store_true')
     parser.add_argument('--noposix', action='store_true')
+    parser.add_argument('--uid', action='store')
     arg_data = parser.parse_args()
     try:
         main(arg_data)
