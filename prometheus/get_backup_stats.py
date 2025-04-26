@@ -6,16 +6,17 @@ from datetime import datetime
 
 BACKUP_DIR = "/backup/vm/"
 BACKUP_FILE_REGEX = "^vzdump-qemu-.*vma\.gz$"
-OUTPUT_FILE = "/var/lib/node_exporter/textfile_collector/backup_state.prom"
+OUTPUT_FILE = "/var/lib/prometheus/node-exporter/backup_state.prom"
 
 
 def getServerName(serverId):
     lookup = {}
-    lookup["111"] = "host02"
     lookup["200"] = "glados"
     lookup["201"] = "storagecube"
     lookup["202"] = "turret"
-    lookup["203"] = "atlas"
+    lookup["205"] = "chell"
+    lookup["208"] = "portal"
+    lookup["211"] = "stats"
     if serverId in lookup:
         return lookup[serverId]
     return serverId
